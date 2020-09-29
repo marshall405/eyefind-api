@@ -1,7 +1,7 @@
 const express = require('express')
 const https = require('https')
 const dotenv = require('dotenv').config()
-
+const axios = require('axios')
 const app = express()
 
 
@@ -13,17 +13,29 @@ app.get('/api/places', async (req, res) => {
             data += `${d}`
         })
         r.on('end', () => {
-            res.setHeader('Access-Control-Allow-Origin', '*')
-            res.send(data)
+            const parsedData = JSON.parse(data)
+
+            const getImgLocation = async result => {
+                return new Promise(resolve => {
+                    https.get(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&photoreference=${result.photos[0].photo_reference}&key=${process.env.PLACES_API}`, r => {
+                        result.img_src = r.headers.location
+                        return resolve(result)
+                    })
+                })
+            }
+
+            const resData = async () => {
+                return Promise.all(parsedData.results.map(async result => await getImgLocation(result)))
+            }
+
+            resData().then(data => {
+                res.setHeader('Access-Control-Allow-Origin', '*')
+                res.send(data)
+            })
         })
     })
 
 })
-
-
-
-
-
 
 const port = process.env.PORT || 3001
 app.listen(port, () => console.log(`Server listening on port: ${port}.`))
