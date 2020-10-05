@@ -10,7 +10,6 @@ router.get('/:id', (req, res) => {
             data += d.toString()
         })
         r.on('end', () => {
-            res.setHeader('Access-Control-Allow-Origin', process.env.ACCEPT_URL)
             res.send(data)
         })
     })
@@ -44,7 +43,6 @@ router.get('/', async (req, res) => {
             }
 
             resData().then(data => {
-                res.setHeader('Access-Control-Allow-Origin', process.env.ACCEPT_URL)
                 res.send(data)
             })
         })
@@ -55,7 +53,6 @@ router.get('/', async (req, res) => {
 router.get('/img/:photo_reference', (req, res) => {
 
     https.get(`https://maps.googleapis.com/maps/api/place/photo?maxwidth=300&photoreference=${req.params.photo_reference}&key=${process.env.PLACES_API}`, r => {
-        res.setHeader('Access-Control-Allow-Origin', process.env.ACCEPT_URL)
         res.send(r.headers['location'])
     })
 })
